@@ -1,32 +1,33 @@
+// backend/index.js
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// --- IMPORTAR ROTAS ---
+const productRoutes = require('./routes/productRoutes');
+
 const app = express();
 
-// Middleware
-app.use(cors()); // Permite a comunicação entre o frontend e o backend
-app.use(express.json()); // Permite que o express entenda JSON
+app.use(cors());
+app.use(express.json());
 
-// Ligacao a base de dados
 const MONGO_URI = process.env.MONGO_URI;
-
 mongoose.connect(MONGO_URI)
-	.then(() => {
-		console.log('Conectando ao MongoDB Atlas com sucesso!');
-	})
-	.catch((error) => {
-		console.log('Erro ao conectar ao MongoDB Atlas:', error.message);
-	});
+  .then(() => console.log('Conectado ao MongoDB Atlas com sucesso!'))
+  .catch((error) => console.error('Erro ao conectar ao MongoDB Atlas:', error.message));
 
-// Rota de teste da API
+// Rota de teste
 app.get('/api/test', (req, res) => {
-	res.json({message: 'Olá do Backend! A conexão está a funcionar.'});
+  res.json({ message: 'Olá do Backend! A conexão está a funcionar.' });
 });
 
-const PORT = process.env.PORT || 5001;
+// --- USAR AS ROTAS ---
+// Diz ao Express que qualquer pedido que comece com /api/products
+// deve ser tratado pelo productRoutes.
+app.use('/api/products', productRoutes);
 
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-	console.log('The server is running in the port ${PORT}');
+  console.log(`Servidor a correr na porta ${PORT}`);
 });
