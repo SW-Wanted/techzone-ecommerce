@@ -1,9 +1,9 @@
-// frontend/src/pages/HomePage.tsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
+import styles from './HomePage.module.css'; // 1. Importa o módulo de estilos
 
-// Reutilizamos a definição do tipo Product. O ideal seria tê-la num ficheiro partilhado.
+// ... (Interface Product) ...
 interface Product {
   _id: string;
   name: string;
@@ -12,8 +12,9 @@ interface Product {
   brand: string;
 }
 
+
 const HomePage = () => {
-  // Aqui definimos que o estado 'products' será um array do tipo 'Product'
+  // ... (Lógica de useState e useEffect) ...
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ const HomePage = () => {
   return (
     <main>
       <h2>Nossos Produtos</h2>
-      <div className="products-grid">
+      <div className={styles.productsGrid}>
         {products.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}

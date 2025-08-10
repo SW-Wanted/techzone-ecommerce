@@ -2,26 +2,24 @@
 import React from "react"; // React deve ser importado
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { Link } from "react-router-dom";
+import styles from "./AppLayout.module.css"; // Importar os estilos do layout
 
 // Importar as páginas e o CSS
 import HomePage from "./pages/HomePage.tsx";
 import ProductDetailPage from "./pages/ProductDetailPage.tsx";
 import "./index.css";
-// Vamos precisar de um ficheiro de estilos global. Pode ser o App.css ou index.css
-// import './App.css';
 
 // Componente de Layout (pode estar no seu próprio ficheiro, ex: layouts/AppLayout.tsx)
 const AppLayout = () => {
   return (
-    <div className="App">
-      {" "}
-      {/* A classe App vem do seu CSS */}
-      <header className="App-header">
-        <h1>Bem-vindo à TechZone</h1>
+    <div className={styles.App}>
+      <header className={styles.AppHeader}>
+        <h1><Link to="/">TechZone</Link></h1>
       </header>
-      <main>
-        <Outlet /> {/* As páginas da rota serão renderizadas aqui */}
-      </main>
+      <div className={styles.mainContent}>
+        <Outlet />
+      </div>
     </div>
   );
 };
