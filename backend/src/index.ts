@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config(); // Carrega as variáveis de ambiente do .env
 
 import productRoutes from './routes/productRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app: Express = express();
 
@@ -28,6 +29,8 @@ app.get('/api/test', (req: Request, res: Response) => {
 });
 
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
+
 
 const PORT: string | number = process.env.PORT || 5001;
 
