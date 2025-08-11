@@ -1,56 +1,108 @@
-const mongoose = require('mongoose');
+import mongoose, { Document, Model, Types } from 'mongoose';
 
-// O Schema define a estrutura dos documentos dentro de uma coleção.
-const productSchema = new mongoose.Schema(
+// 1. Definir uma interface para as avaliações (Reviews), pois elas são um subdocumento.
+interface IReview extends Document {
+  user: Types.ObjectId; // Referência ao utilizador que fez a avaliação
+  name: string;
+  rating: number;
+  comment: string;
+}
+
+// 2. Criar um Schema para as avaliações que será usado dentro do Product Schema.
+const reviewSchema = new mongoose.Schema<IReview>(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User', // Cria uma relação com o modelo 'User'
+    },
+    name: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+
+// 3. Definir a interface principal para as propriedades de um Produto.
+// Incluímos as avaliações como um array do tipo da interface que criámos.
+interface IProduct extends Document {
+  user: Types.ObjectId; // Referência ao admin que criou o produto
+  name: string;
+  image: string;
+  brand: string;
+  category: string;
+  description: string;
+  reviews: IReview[]; // Array de subdocumentos de avaliação
+  rating: number;
+  numReviews: number;
+  price: number;
+  countInStock: number;
+}
+
+
+// 4. Criar o Schema do Produto, usando a nossa interface IProduct.
+const productSchema = new mongoose.Schema<IProduct>(
+  {
+    // Adicionamos uma referência ao utilizador que criou o produto.
+    // Isto será útil para o painel de administração.
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
     name: {
       type: String,
-      required: [true, 'Por favor, insira o nome do produto.'], // O campo é obrigatório
-      trim: true, // Remove espaços em branco no início e no fim
-    },
-    description: {
-      type: String,
-      required: [true, 'Por favor, insira a descrição do produto.'],
-    },
-    price: {
-      type: Number,
-      required: [true, 'Por favor, insira o preço do produto.'],
-      default: 0, // Valor padrão caso não seja fornecido
+      required: true,
     },
     image: {
-      type: String, //  URL da imagem
-      required: false, // Pode ser adicionada depois
-    },
-    category: {
       type: String,
-      required: [true, 'Por favor, insira a categoria do produto.'],
+      required: true,
+      default: '/images/sample.jpg', // Adicionar um valor padrão para a imagem
     },
     brand: {
       type: String,
-      required: [true, 'Por favor, insira a marca do produto.'],
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    reviews: [reviewSchema], // Usar o schema de avaliações que definimos
+    rating: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    numReviews: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    price: {
+      type: Number,
+      required: true,
+      default: 0,
     },
     countInStock: {
       type: Number,
       required: true,
       default: 0,
     },
-    rating: {
-      type: Number,
-      default: 0,
-    },
-    numReviews: {
-      type: Number,
-      default: 0,
-    },
   },
   {
-    // A opção timestamps adiciona automaticamente os campos createdAt e updatedAt
     timestamps: true,
   }
 );
 
-// O Model é um wrapper sobre o Schema que fornece uma interface
-// para a base de dados para criar, ler, atualizar e apagar documentos.
-const Product = mongoose.model('Product', productSchema);
+
+// 5. Criar e exportar o Modelo do Produto.
+const Product: Model<IProduct> = mongoose.model<IProduct>('Product', productSchema);
 
 export default Product;
