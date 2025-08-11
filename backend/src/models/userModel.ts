@@ -1,52 +1,50 @@
-import mongoose from 'mongoose';
+import mongoose, { Model} from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const userSchema = new mongoose.Schema(
-	{
-		name: {
-			type: String,
-			required: [true, 'Por favor, insira o seu nome.'],
-		},
-		email: {
-			type: String,
-			required: [true, 'Por favor, insira o seu email.'],
-			unique: true,
-			trime: true,
-			lowercase: true,
-		},
-		password: {
-			type: String,
-			required: [true, 'Por favor, isnira a sua password.'],
-		},
-		isAdmin: {
-			type: Boolean,
-			required: true,
-			default: false,
-		},
-	},
-	{
-		// createdAt & updateAt
-		timestamps: true,
-	}
+// Criar uma interface que descreve as propriedades de um utilizador.
+interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  isAdmin: boolean;
+}
+
+// Criar uma interface que descreve os métodos customizados do nosso schema.
+interface IUserMethods {
+  matchPassword(enteredPassword: string): Promise<boolean>;
+}
+
+// Criar um tipo para o nosso Model que combina a estrutura (IUser) e os métodos (IUserMethods).
+type UserModel = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new mongoose.Schema<IUser, UserModel, IUserMethods>(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    isAdmin: { type: Boolean, required: true, default: false },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-// 2. Adicionar o middleware "pre-save"
-// Esta função será executada automaticamente ANTES de um documento ser guardado.
+// Adicionar o método 'matchPassword' à interface de métodos
+userSchema.methods.matchPassword = async function (enteredPassword: string) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
+// Middleware 'pre-save' para encriptar a password
 userSchema.pre('save', async function (next) {
-  // Apenas encripta a password se ela foi modificada (ou é nova)
   if (!this.isModified('password')) {
     return next();
   }
-
-  // Gera um "salt" - uma string aleatória para tornar o hash mais seguro
   const salt = await bcrypt.genSalt(10);
-  // Substitui a password em texto simples pela password encriptada (hashed)
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-const User = mongoose.model('User', userSchema);
+// Informar que ele usa o tipo 'UserModel'.
+const User = mongoose.model<IUser, UserModel>('User', userSchema);
 
 export default User;
-
