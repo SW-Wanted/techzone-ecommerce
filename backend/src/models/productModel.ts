@@ -1,5 +1,3 @@
-// backend/models/productModel.js
-
 const mongoose = require('mongoose');
 
 // O Schema define a estrutura dos documentos dentro de uma coleção.
@@ -20,7 +18,7 @@ const productSchema = new mongoose.Schema(
       default: 0, // Valor padrão caso não seja fornecido
     },
     image: {
-      type: String, // Vamos guardar o URL da imagem
+      type: String, //  URL da imagem
       required: false, // Pode ser adicionada depois
     },
     category: {
@@ -55,4 +53,4 @@ const productSchema = new mongoose.Schema(
 // para a base de dados para criar, ler, atualizar e apagar documentos.
 const Product = mongoose.model('Product', productSchema);
 
-module.exports = Product;
+export default Product;
