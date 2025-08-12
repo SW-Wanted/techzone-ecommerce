@@ -1,9 +1,16 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './AppLayout.module.css';
 
 const AppLayout = () => {
-  const { userInfo } = useAuth();
+  // Obter tudo o que precisamos do nosso contexto de autenticação
+  const { userInfo, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const logoutHandler = () => {
+    logout(); 
+    navigate('/login');
+  };
 
   return (
     <div className={styles.App}>
@@ -14,15 +21,22 @@ const AppLayout = () => {
           </h1>
           <nav className={styles.nav}>
             {userInfo ? (
+              // Vista para utilizador logado
               <>
                 <span className={styles.welcomeMessage}>Bem-vindo, {userInfo.name}!</span>
-                {/* O botão de logout virá na próxima issue */}
-                <button className={styles.navButton}>Logout</button> 
+                <button onClick={logoutHandler} className={styles.navButton}>
+                  Logout
+                </button>
               </>
             ) : (
+              // Vista para visitante
               <>
-                <Link to="/login" className={styles.navLink}>Login</Link>
-                <Link to="/register" className={styles.navLink}>Registar</Link>
+                <Link to="/login" className={styles.navLink}>
+                  Login
+                </Link>
+                <Link to="/register" className={styles.navLink}>
+                  Registar
+                </Link>
               </>
             )}
           </nav>

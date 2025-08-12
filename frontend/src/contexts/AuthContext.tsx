@@ -17,7 +17,6 @@ export interface AuthContextType {
 }
 
 // 3. Criação do Contexto
-// Vamos inicializar com 'null' e o nosso hook 'useAuth' vai tratar da verificação.
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 // 4. Componente Provider (O gestor do estado)
@@ -59,8 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// 5. Custom Hook (A forma fácil de consumir o contexto)
-// Colocamos o hook aqui para manter toda a lógica de autenticação num só sítio.
+// 5. Custom Hook (The Short Form)
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === null) {
