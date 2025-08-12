@@ -7,8 +7,9 @@ import styles from "./AppLayout.module.css"; // Importar os estilos do layout
 // Importar as páginas e o CSS
 import HomePage from "./pages/HomePage.tsx";
 import ProductDetailPage from "./pages/ProductDetailPage.tsx";
-import "./index.css";
 import LoginPage from "./pages/LoginPage.tsx";
+import RegisterPage from "./pages/RegisterPage.tsx"
+import "./index.css";
 
 // Componente de Layout (pode estar no seu próprio ficheiro, ex: layouts/AppLayout.tsx)
 const AppLayout = () => {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />
       }
     ],
   },
