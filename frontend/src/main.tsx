@@ -1,48 +1,36 @@
 // frontend/src/main.tsx
-import React from "react"; // React deve ser importado
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import { Link } from "react-router-dom";
-import styles from "./AppLayout.module.css"; // Importar os estilos do layout
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 
-// Importar as páginas e o CSS
+// Importar o Layout
+import AppLayout from "./layouts/AppLayout.tsx"; // <-- Importar o componente
+
+// Importar as páginas
 import HomePage from "./pages/HomePage.tsx";
 import ProductDetailPage from "./pages/ProductDetailPage.tsx";
+import LoginPage from './pages/LoginPage.tsx';
+import RegisterPage from './pages/RegisterPage.tsx';
 import "./index.css";
 
-// Componente de Layout (pode estar no seu próprio ficheiro, ex: layouts/AppLayout.tsx)
-const AppLayout = () => {
-  return (
-    <div className={styles.App}>
-      <header className={styles.AppHeader}>
-        <h1><Link to="/">TechZone</Link></h1>
-      </header>
-      <div className={styles.mainContent}>
-        <Outlet />
-      </div>
-    </div>
-  );
-};
 
 const router = createBrowserRouter([
   {
-    element: <AppLayout />,
+    element: <AppLayout />, // <-- Usar o componente importado
     children: [
-      {
-        path: "/",
-        element: <HomePage />,
-      },
-      {
-        path: "/product/:id",
-        element: <ProductDetailPage />,
-      },
+      { path: "/", element: <HomePage /> },
+      { path: "/product/:id", element: <ProductDetailPage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
     ],
   },
 ]);
 
-// O ficheiro App.tsx original não é mais necessário aqui, pois o router controla o que é renderizado.
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );
