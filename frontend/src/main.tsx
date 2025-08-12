@@ -1,4 +1,3 @@
-// frontend/src/main.tsx
 import React from "react"; // React deve ser importado
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
@@ -9,6 +8,7 @@ import styles from "./AppLayout.module.css"; // Importar os estilos do layout
 import HomePage from "./pages/HomePage.tsx";
 import ProductDetailPage from "./pages/ProductDetailPage.tsx";
 import "./index.css";
+import LoginPage from "./pages/LoginPage.tsx";
 
 // Componente de Layout (pode estar no seu próprio ficheiro, ex: layouts/AppLayout.tsx)
 const AppLayout = () => {
@@ -36,6 +36,10 @@ const router = createBrowserRouter([
         path: "/product/:id",
         element: <ProductDetailPage />,
       },
+      {
+        path: "/login",
+        element: <LoginPage />
+      }
     ],
   },
 ]);
