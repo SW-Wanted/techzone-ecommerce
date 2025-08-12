@@ -1,5 +1,3 @@
-// frontend/src/pages/RegisterPage.tsx
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './RegisterPage.module.css'; // Usaremos um estilo dedicado

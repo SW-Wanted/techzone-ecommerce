@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
-import styles from './HomePage.module.css'; // 1. Importa o módulo de estilos
-
-// ... (Interface Product) ...
+import styles from './HomePage.module.css';
 interface Product {
   _id: string;
   name: string;
@@ -14,7 +12,6 @@ interface Product {
 
 
 const HomePage = () => {
-  // ... (Lógica de useState e useEffect) ...
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
