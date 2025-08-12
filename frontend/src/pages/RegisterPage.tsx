@@ -1,25 +1,67 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './RegisterPage.module.css'; // Usaremos um estilo dedicado
+// frontend/src/pages/RegisterPage.tsx
+
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+import styles from './RegisterPage.module.css';
 
 const RegisterPage = () => {
-  // Adicionar estados para os novos campos
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState(''); // Para mostrar mensagens de erro
+  const [error, setError] = useState(''); // Estado para erros da API
+  const [loading, setLoading] = useState(false);
 
-  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate();
+  const { login, userInfo } = useAuth(); // O registo vai fazer login automaticamente
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate('/');
+    }
+  }, [userInfo, navigate]);
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Verificação simples no frontend
     if (password !== confirmPassword) {
-      setMessage('As passwords não coincidem!');
-    } else {
-      setMessage(''); // Limpar a mensagem se estiver tudo bem
-      // Por agora, apenas mostrar os dados
-      console.log({ name, email, password });
+      setError('As passwords não coincidem!');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      // A API de registo não retorna um token, então temos que fazer o login a seguir
+      await axios.post(
+        'http://localhost:5001/api/users/register',
+        { name, email, password },
+        config
+      );
+
+      // Após o registo bem-sucedido, fazemos o login automaticamente
+      const { data } = await axios.post(
+        'http://localhost:5001/api/users/login',
+        { email, password },
+        config
+      );
+      
+      login(data); // Usa a função do contexto para fazer login
+      navigate('/'); // Redireciona
+
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Ocorreu um erro. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -27,64 +69,33 @@ const RegisterPage = () => {
     <div className={styles.registerContainer}>
       <form className={styles.registerForm} onSubmit={submitHandler}>
         <h1>Criar Conta</h1>
-
-        {message && <p className={styles.errorMessage}>{message}</p>}
-
+        
+        {error && <p className={styles.errorMessage}>{error}</p>}
+        
+        {/* ... (resto do formulário) ... */}
         <div className={styles.formGroup}>
-          <label htmlFor="name">Nome</label>
-          <input
-            type="text"
-            id="name"
-            placeholder="Digite o seu nome"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+            <label htmlFor="name">Nome</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div className={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+        <div className={styles.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        <div className={styles.formGroup}>
+            <label htmlFor="confirmPassword">Confirmar Password</label>
+            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Digite o seu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Digite a sua password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="confirmPassword">Confirmar Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            placeholder="Confirme a sua password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" className={styles.submitButton}>
-          Registar
+        <button type="submit" className={styles.submitButton} disabled={loading}>
+          {loading ? 'A registar...' : 'Registar'}
         </button>
 
         <p className={styles.loginLink}>
-          Já tem uma conta?{' '}
-          <Link to="/login">Entre aqui</Link>
+          Já tem uma conta? <Link to="/login">Entre aqui</Link>
         </p>
       </form>
     </div>
