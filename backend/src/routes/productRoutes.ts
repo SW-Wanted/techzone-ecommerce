@@ -1,7 +1,10 @@
 import express, { Request, Response } from 'express';
 import Product from '../models/productModel';
+import { protect, admin } from '../middleware/authMiddleware';
 
 const router = express.Router();
+
+// --- ROTAS PÚBLICAS (NÃO PROTEGIDAS) ---
 
 // @desc    Busca todos os produtos
 // @route   GET /api/products
@@ -31,10 +34,13 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
+// --- ROTAS PRIVADAS (PROTEGIDAS) ---
+
 // @desc    Cria um novo produto
 // @route   POST /api/products
 // @access  Private/Admin (ainda por proteger)
-router.post('/', async (req: Request, res: Response) => {
+
+router.post('/', protect, admin, async (req: Request, res: Response) => {
   try {
     const product = new Product({
       name: req.body.name || 'Sample Name',
@@ -46,13 +52,12 @@ router.post('/', async (req: Request, res: Response) => {
       rating: req.body.rating || 0,
       description: req.body.description || 'Sample Description',
       image: req.body.image || '/images/sample.jpg',
-      // Para o model User, os campos obrigatórios serão preenchidos
+      user: req.user?._id // Assumindo que o utilizador que cria o produto é o utilizador autenticado
     });
 
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
-    // Para capturar erros de forma mais detalhada com TypeScript
     if (error instanceof Error) {
         res.status(400).json({ message: 'Dados do produto inválidos', error: error.message });
     } else {
@@ -64,7 +69,7 @@ router.post('/', async (req: Request, res: Response) => {
 // @desc    Atualiza um produto existente
 // @route   PUT /api/products/:id
 // @access  Private/Admin (ainda por proteger)
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', protect, admin, async (req: Request, res: Response) => {
   try {
     const { name, price, brand, category, countInStock, description, image } = req.body;
     const product = await Product.findById(req.params.id);
@@ -95,7 +100,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // @desc    Apaga um produto
 // @route   DELETE /api/products/:id
 // @access  Private/Admin (ainda por proteger)
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', protect, admin, async (req: Request, res: Response) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
 
