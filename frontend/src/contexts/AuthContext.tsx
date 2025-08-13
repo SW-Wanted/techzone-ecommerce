@@ -12,6 +12,7 @@ export interface UserInfo {
 // 2. Interface para o valor do Contexto
 export interface AuthContextType {
   userInfo: UserInfo | null;
+  loading: boolean;
   login: (userData: UserInfo) => void;
   logout: () => void;
 }
@@ -26,6 +27,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Efeito para carregar os dados do localStorage quando a aplicação inicia
   useEffect(() => {
@@ -36,6 +38,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error("Falha ao analisar userInfo do localStorage:", error);
         localStorage.removeItem('userInfo'); // Limpa dados corrompidos
+      } finally {
+        setLoading(false);
       }
     }
   }, []);
@@ -51,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('userInfo');
   };
 
-  const value = { userInfo, login, logout };
+  const value = { userInfo, loading, login, logout };
 
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
