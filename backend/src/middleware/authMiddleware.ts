@@ -45,3 +45,16 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     res.status(401).json({ message: 'Não autorizado, sem token' });
   }
 };
+
+// Middleware para verificar se o utilizador é um administrador
+export const admin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  // Este middleware assume que o middleware 'protect' já foi executado.
+  // O 'protect' adiciona a propriedade 'user' ao objeto 'req'.
+  if (req.user && req.user.isAdmin) {
+    // Se o utilizador existe e é um admin, deixa o pedido passar.
+    next();
+  } else {
+    // Se não for um admin, recusa o acesso.
+    res.status(403).json({ message: 'Acesso negado. Rota exclusiva para administradores.' });
+  }
+};
