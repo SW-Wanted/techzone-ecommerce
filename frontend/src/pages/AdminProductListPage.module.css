@@ -1,0 +1,87 @@
+.productListContainer {
+  background-color: var(--surface-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+}
+
+.createButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background-color: #0056b3;
+}
+
+.productTable {
+  width: 100%;
+  border-collapse: collapse; /* Remove o espaço entre as bordas */
+  font-size: 0.9rem;
+}
+
+.productTable th, .productTable td {
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.productTable thead {
+  background-color: #f8f9fa;
+}
+
+.productTable th {
+  font-weight: 600;
+  color: var(--text-color-light);
+}
+
+.productTable tbody tr:nth-child(even) {
+  background-color: #f8f9fa; /* Efeito de zebra para legibilidade */
+}
+
+.productTable tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.actionButton {
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin-right: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.editButton {
+  background-color: #ffc107; /* Amarelo */
+  color: #212529;
+}
+
+.deleteButton {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+}
+
+.error {
+  color: #dc3545;
+}
