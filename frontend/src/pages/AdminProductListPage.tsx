@@ -3,7 +3,6 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './AdminProductListPage.module.css';
-
 interface Product {
   _id: string;
   name: string;
@@ -18,23 +17,51 @@ const AdminProductListPage = () => {
   const [error, setError] = useState('');
   const { userInfo } = useAuth();
 
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get('http://localhost:5001/api/products');
+      setProducts(data);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao carregar produtos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const { data } = await axios.get('http://localhost:5001/api/products');
-        setProducts(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Erro ao carregar produtos.');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProducts();
   }, []);
 
+  // --- NOVA LÓGICA DE APAGAR ---
+  const deleteHandler = async (id: string) => {
+    // 1. Pedir confirmação ao utilizador
+    if (window.confirm('Tem a certeza que quer apagar este produto?')) {
+      try {
+        // 2. Configurar os headers para enviar o token de autenticação
+        const config = {
+          headers: {
+            Authorization: `Bearer ${userInfo?.token}`,
+          },
+        };
+
+        // 3. Enviar o pedido DELETE para a nossa API protegida
+        await axios.delete(`http://localhost:5001/api/products/${id}`, config);
+
+        // 4. Atualizar a lista de produtos no frontend sem recarregar
+        // Filtramos o produto apagado do nosso estado atual
+        setProducts(products.filter((p) => p._id !== id));
+        
+        // Alternativa: Recarregar a lista do zero
+        // fetchProducts();
+
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Erro ao apagar o produto.');
+      }
+    }
+  };
+
   const createProductHandler = () => {
-    // Lógica para criar um produto virá numa issue futura
     console.log('Criar novo produto');
   };
 
@@ -46,44 +73,47 @@ const AdminProductListPage = () => {
           + Criar Produto
         </button>
       </div>
-
-      {loading ? (
-        <p>A carregar...</p>
-      ) : error ? (
-        <p className={styles.error}>{error}</p>
-      ) : (
-        <table className={styles.productTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>NOME</th>
-              <th>PREÇO</th>
-              <th>CATEGORIA</th>
-              <th>MARCA</th>
-              <th>AÇÕES</th>
+      
+      {/* Adicionar um estado de loading/erro para a operação de apagar */}
+      {error && <p className={styles.error}>{error}</p>}
+      {loading && <p>A carregar...</p>}
+      
+      {/* Tabela de produtos */}
+      <table className={styles.productTable}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NOME</th>
+            <th>PREÇO</th>
+            <th>CATEGORIA</th>
+            <th>MARCA</th>
+            <th>AÇÕES</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product._id}>
+              <td>{product._id}</td>
+              <td>{product.name}</td>
+              <td>Kz {product.price.toLocaleString()}</td>
+              <td>{product.category}</td>
+              <td>{product.brand}</td>
+              <td>
+                <Link to={`/admin/product/${product._id}/edit`} className={`${styles.actionButton} ${styles.editButton}`}>
+                  Editar
+                </Link>
+                {/* Ligar a nossa nova função ao evento onClick */}
+                <button
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => deleteHandler(product._id)}
+                >
+                  Apagar
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product._id}>
-                <td>{product._id}</td>
-                <td>{product.name}</td>
-                <td>Kz {product.price.toLocaleString()}</td>
-                <td>{product.category}</td>
-                <td>{product.brand}</td>
-                <td>
-                  <Link to={`/admin/product/${product._id}/edit`} className={`${styles.actionButton} ${styles.editButton}`}>
-                    Editar
-                  </Link>
-                  <button className={`${styles.actionButton} ${styles.deleteButton}`}>
-                    Apagar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
