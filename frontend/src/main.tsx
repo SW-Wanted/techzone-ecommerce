@@ -14,6 +14,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.tsx";
 import AdminProductListPage from "./pages/AdminProductListPage.tsx";
+import AdminProductEditPage from './pages/AdminProductEditPage.tsx';
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -34,7 +35,8 @@ const router = createBrowserRouter([
         element: <AdminRoute />,
         children: [
           { path: "dashboard", element: <AdminDashboardPage /> },
-          { path: 'products', element: <AdminProductListPage /> }
+          { path: 'products', element: <AdminProductListPage /> },
+          { path: 'product/:id/edit', element: <AdminProductEditPage /> }
           // Em breve: { path: 'users', element: <AdminUserListPage /> }
         ],
       },
