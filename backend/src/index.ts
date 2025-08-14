@@ -2,11 +2,13 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path'; // Módulo nativo do Node.js
 
 dotenv.config(); // Carrega as variáveis de ambiente do .env
 
 import productRoutes from './routes/productRoutes';
 import userRoutes from './routes/userRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 
 const app: Express = express();
 
@@ -30,7 +32,11 @@ app.get('/api/test', (req: Request, res: Response) => {
 
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
-
+app.use('/api/upload', uploadRoutes);
+// --- TORNAR A PASTA DE UPLOADS ESTÁTICA ---
+// process.cwd() retorna o diretório onde o comando 'npm' foi executado,
+// que neste caso é a raiz da pasta 'backend'.
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 const PORT: string | number = process.env.PORT || 5001;
 
