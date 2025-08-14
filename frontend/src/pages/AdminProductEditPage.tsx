@@ -1,4 +1,3 @@
-// frontend/src/pages/AdminProductEditPage.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -22,6 +21,7 @@ const AdminProductEditPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [loadingUpload, setLoadingUpload] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -69,6 +69,40 @@ const AdminProductEditPage = () => {
     }
   };
 
+  const uploadFileHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    setLoadingUpload(true);
+
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo?.token}`,
+        },
+      };
+
+      // Como já configurei o proxy no vite.config.ts não há necessidade de colocar sempre o caminho completo do servidor: https://localhost:5001...
+      const { data } = await axios.post(
+        `/api/upload`,
+        formData,
+        config
+      );
+      
+      // A única coisa que esta função faz é atualizar o estado da imagem.
+      setImage(data.image);
+      setLoadingUpload(false);
+    } catch (error) {
+      console.error(error);
+      setError('Falha no upload da imagem.'); // Dar feedback de erro ao utilizador
+      setLoadingUpload(false);
+    }
+  };
+
+
   if (loading) return <p>A carregar dados do produto...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
 
@@ -90,8 +124,25 @@ const AdminProductEditPage = () => {
           <input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
         </div>
         <div className={styles.formGroup}>
-          <label>URL da Imagem</label>
-          <input type="text" value={image} onChange={(e) => setImage(e.target.value)} />
+          <label>Imagem do Produto</label>
+          
+          {/* Mostra a imagem atual */}
+          <div className={styles.imagePreview}>
+            <img src={image} alt="Pré-visualização do produto" />
+          </div>
+
+          {/* Campo de texto para ver o caminho da imagem (opcional, pode ser read-only) */}
+          <input
+            type="text"
+            placeholder="Caminho da imagem"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            readOnly // Boa prática para evitar edição manual confusa
+          />
+          
+          {/* Campo de upload de ficheiro */}
+          <input type="file" id="image-file" label="Escolher Ficheiro" onChange={uploadFileHandler} />
+          {loadingUpload && <p>A carregar imagem...</p>}
         </div>
         <div className={styles.formGroup}>
           <label>Marca</label>
