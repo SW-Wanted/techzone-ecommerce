@@ -42,6 +42,11 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.post('/', protect, admin, async (req: Request, res: Response) => {
   try {
+
+    if (!req.user) {
+      return res.status(401).json({message: 'Não autorizado'});
+    }
+    
     const product = new Product({
       name: req.body.name || 'Sample Name',
       price: req.body.price || 0,
