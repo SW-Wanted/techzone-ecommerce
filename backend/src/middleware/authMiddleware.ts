@@ -3,18 +3,22 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import User from '../models/userModel';
+import { Types } from 'mongoose';
 
-// Interface para estender o objeto Request do Express e adicionar a nossa propriedade 'user'
-export interface AuthRequest extends Request {
-  user?: { // A propriedade 'user' será opcional
-    _id: string;
-    name: string;
-    email: string;
-    isAdmin: boolean;
-  };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        _id: Types.ObjectId;
+        name: string;
+        email: string;
+        isAdmin: boolean;
+      } | null;
+    }
+  }
 }
 
-export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token;
 
   // 1. Ler o token JWT do header 'Authorization'
@@ -47,7 +51,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 };
 
 // Middleware para verificar se o utilizador é um administrador
-export const admin = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const admin = (req: Request, res: Response, next: NextFunction) => {
   // Este middleware assume que o middleware 'protect' já foi executado.
   // O 'protect' adiciona a propriedade 'user' ao objeto 'req'.
   if (req.user && req.user.isAdmin) {
